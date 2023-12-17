@@ -16,6 +16,18 @@ from actors join castings
 ON actors.id = castings.actorid
 WHERE actors.name = 'Clint Eastwood';
 
+SELECT id
+FROM movies
+WHERE id IN (
+    SELECT movieid
+    FROM castings
+    WHERE actorid IN (
+        SELECT id
+        FROM actors
+        WHERE name = 'Clint Eastwood'
+    )
+);
+
 SELECT title, yr
 FROM movies JOIN castings JOIN actors
 ON movies.id = castings.movieid
@@ -29,12 +41,36 @@ JOIN castings ON actors.id = castings.actorid
 JOIN movies ON castings.movieid = movies.id
 WHERE movies.title = 'Citizen Kane';
 
+SELECT name
+FROM actors
+WHERE id IN (
+    SELECT actorid
+    FROM castings
+    WHERE movieid IN (
+        SELECT id
+        FROM movies
+        WHERE title = 'Citizen Kane'
+    )
+);
+
 SELECT actors.name
 FROM actors JOIN castings
 ON actors.id = castings.actorid
 JOIN movies 
 ON castings.movieid = movies.id
 WHERE movies.title = 'Vertigo' OR movies.title = 'Rear Window';
+
+SELECT name
+FROM actors
+WHERE id IN (
+    SELECT actorid
+    FROM castings
+    WHERE movieid IN (
+        SELECT id
+        FROM movies
+        WHERE title = 'Vertigo' OR title = 'Rear Window'
+    )
+);
 
 SELECT movies.title
 FROM movies
@@ -80,6 +116,31 @@ AND m1.id IN (
     WHERE a2.name = 'Richard Burton'
 );
 
+SELECT title,yr
+FROM movies
+WHERE id IN (
+    SELECT movieid
+    FROM castings
+    WHERE actorid IN (
+        SELECT id
+        FROM actors
+        WHERE name = 'Clint Eastwood'
+    )
+)
+INTERSECT
+SELECT title,yr
+FROM movies
+WHERE id IN (
+    SELECT movieid
+    FROM castings
+    WHERE actorid IN (
+        SELECT id
+        FROM actors
+        WHERE name = 'Richard Burton'
+    )
+);
+
+
 SELECT DISTINCT a2.name
 FROM actors as a1
 JOIN castings as c1 ON a1.id = c1.actorid
@@ -87,6 +148,27 @@ JOIN movies as m1 ON c1.movieid = m1.id
 JOIN castings as c2 ON m1.id = c2.movieid
 JOIN actors as a2 ON c2.actorid = a2.id
 WHERE a1.name = 'Al Pacino' AND a2.name != 'Al Pacino';
+
+SELECT DISTINCT name
+FROM actors
+WHERE id IN (
+    SELECT actorid
+    FROM castings
+    WHERE movieid IN (
+        SELECT id
+        FROM movies
+        WHERE id IN (
+            SELECT movieid
+            FROM castings
+            WHERE actorid IN (
+                SELECT id
+                FROM actors
+                WHERE name = 'Al Pacino'
+            )
+        )
+    )
+);
+
 
 SELECT DISTINCT a1.name
 FROM movies AS m1
@@ -100,6 +182,31 @@ AND a1.id IN (
     WHERE m2.title = 'Casablanca'
 );
 
+SELECT name
+FROM actors
+WHERE id IN (
+    SELECT actorid
+    FROM castings
+    WHERE movieid IN (
+        SELECT id
+        FROM movies
+        WHERE title = 'Big Sleep, The'    
+    )
+)
+INTERSECT
+SELECT name
+FROM actors
+WHERE id IN (
+    SELECT actorid
+    FROM castings
+    WHERE movieid IN (
+        SELECT id
+        FROM movies
+        WHERE title = 'Casablanca'    
+    )
+);
+
+
 SELECT DISTINCT a1.name
 FROM movies AS m1
 JOIN castings AS c1 ON m1.id = c1.movieid
@@ -112,20 +219,39 @@ AND a1.id IN (
     WHERE m2.yr BETWEEN 1980 and 1989
 );
 
+SELECT DISTINCT name
+FROM actors
+WHERE id IN (
+    SELECT actorid
+    FROM castings
+    WHERE movieid IN (
+        SELECT movieid
+        FROM movies
+        WHERE yr BETWEEN 1950 and 1959
+    )
+)
+INTERSECT
+SELECT DISTINCT name
+FROM actors
+WHERE id IN (
+    SELECT actorid
+    FROM castings
+    WHERE movieid IN (
+        SELECT movieid
+        FROM movies
+        WHERE yr BETWEEN 1980 and 1989
+    )
+);
+
 SELECT SUBSTR(title,1,1) as first_letter, count(title), yr
 FROM movies
 WHERE movies.yr BETWEEN 1960 and 1969
 GROUP BY first_letter;
 
-SELECT a.name AS actor_name, m.title AS movie_title
+SELECT a.name AS actor_name, m.title AS movie_title, COUNT(m.title) as movie_count
 FROM actors AS a
 JOIN castings AS c ON a.id = c.actorid
 JOIN movies AS m ON c.movieid = m.id
 GROUP BY a.name, m.title
-HAVING COUNT(m.title) >= 10;
-
-
-
-
-
+HAVING movie_count >= 10;
 

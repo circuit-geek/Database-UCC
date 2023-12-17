@@ -44,7 +44,6 @@ FROM persons JOIN likes
     ON persons.person_id = likes.person_id
     WHERE first_name = 'Aoife';
 
-
 SELECT persons.first_name, persons.county, likes.food
 FROM persons JOIN likes
     ON persons.person_id = likes.person_id
@@ -169,12 +168,3 @@ WHERE birth_date = (
     SELECT MAX(birth_date)
     FROM persons
 );
-
-
-
-
-
-
-
-
-
